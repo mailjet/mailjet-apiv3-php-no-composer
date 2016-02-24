@@ -1,4 +1,3 @@
-
 [doc]: http://dev.mailjet.com/guides/?php#
 [api_credential]: https://app.mailjet.com/account/api_keys
 [mailjet]: http://www.mailjet.com
