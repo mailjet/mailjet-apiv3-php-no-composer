@@ -19,9 +19,7 @@ Check out all the resources and all the PHP code examples on the official docume
 
 ## Installation
 
-``` bash
-composer require mailjet/mailjet-apiv3-php
-```
+Clone this repository in your project folder
 
 ## Getting Started !
 
