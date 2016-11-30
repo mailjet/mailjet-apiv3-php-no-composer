@@ -83,7 +83,7 @@ class Client
     /**
      * Build the base API url depending on wether user need a secure connection
      * or not
-     * @return the API url;
+     * @return string the API url;
      */
     private function getApiUrl()
     {
@@ -93,8 +93,8 @@ class Client
 
     /**
      * Trigger a POST request
-     * @param ResourceArray $resource Mailjet Resource/Action pair
-     * @param array         $args     Request arguments
+     * @param array $resource Mailjet Resource/Action pair
+     * @param array $args     Request arguments
      * @return Mailjet\Response
      */
     public function post($resource, $args = [])
@@ -104,8 +104,8 @@ class Client
 
     /**
      * Trigger a GET request
-     * @param ResourceArray $resource Mailjet Resource/Action pair
-     * @param array         $args     Request arguments
+     * @param array $resource Mailjet Resource/Action pair
+     * @param array $args     Request arguments
      * @return Mailjet\Response
      */
     public function get($resource, $args = [])
@@ -115,8 +115,8 @@ class Client
 
     /**
      * Trigger a POST request
-     * @param ResourceArray $resource Mailjet Resource/Action pair
-     * @param array         $args     Request arguments
+     * @param array $resource Mailjet Resource/Action pair
+     * @param array $args     Request arguments
      * @return Mailjet\Response
      */
     public function put($resource, $args = [])
@@ -126,8 +126,8 @@ class Client
 
     /**
      * Trigger a GET request
-     * @param ResourceArray $resource Mailjet Resource/Action pair
-     * @param array         $args     Request arguments
+     * @param array $resource Mailjet Resource/Action pair
+     * @param array $args     Request arguments
      * @return Mailjet\Response
      */
     public function delete($resource, $args = [])
@@ -150,6 +150,7 @@ class Client
             $path = '';
         } elseif ($action == 'csverror/text:csv'
             || $action == 'csvdata/text:plain'
+            || $action == 'JSONError/application:json/LAST'
         ) {
             $path = 'DATA';
         } else {
@@ -172,13 +173,14 @@ class Client
      * @param bool $bIsSecured True use https / false use http
      * @return bool true if we set value false otherwise
      */
-    public function setSecureProtocol( $bIsSecured ) {
-
+    public function setSecureProtocol($bIsSecured)
+    {
         if (is_bool($bIsSecured)) {
-
             $this->secure = $bIsSecured;
+            
             return true;
         }
+
         return false;
-    } 
+    }
 }
