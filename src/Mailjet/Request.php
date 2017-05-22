@@ -17,15 +17,7 @@ use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
 
-/**
- * This is the Mailjet Request class
- * @category Mailjet_API
- * @package  Mailjet-apiv3
- * @author Guillaume Badi <gbadi@mailjet.com>
- * @license MIT https://licencepath.com
- * @link http://link.com
- */
-class Request extends \GuzzleHttp\Client
+class Request extends GuzzleClient
 {
     private $method;
     private $url;
@@ -47,7 +39,7 @@ class Request extends \GuzzleHttp\Client
     {
         parent::__construct(['defaults' => [
             'headers' => [
-                'user-agent' => \Mailjet\Config::USER_AGENT . phpversion() . '/' . \Mailjet\Client::WRAPPER_VERSION
+                'user-agent' => Config::USER_AGENT . phpversion() . '/' . Client::WRAPPER_VERSION
             ]
         ]]);
         $this->type = $type;
@@ -70,15 +62,14 @@ class Request extends \GuzzleHttp\Client
             'headers'  => ['content-type' => $this->type],
             'query' => $this->filters,
             'auth' => $this->auth,
-            ($this->type === "application/json" ? 'json' : 'body') => $this->body,
+            ($this->type === 'application/json' ? 'json' : 'body') => $this->body,
         ];
-
         $response = null;
         if ($call) {
             try {
                 $response = call_user_func_array(
-                    array($this, strtolower($this->method)), [
-                    $this->url, $payload]
+                    [$this, strtolower($this->method)],
+                    [$this->url, $payload]
                 );
             }
             catch (ClientException $e) {
@@ -88,7 +79,7 @@ class Request extends \GuzzleHttp\Client
                 $response = $e->getResponse();
             }
         }
-        return new \Mailjet\Response($this, $response);
+        return new Response($this, $response);
     }
 
     /**

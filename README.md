@@ -8,7 +8,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/3fa729f3750849ce8e0471b0487439cb)](https://www.codacy.com/app/gbadi/mailjet-apiv3-php)
 [![Build Status](https://travis-ci.org/mailjet/mailjet-apiv3-php.svg?branch=master)](https://travis-ci.org/mailjet/mailjet-apiv3-php)
 ![MIT License](https://img.shields.io/badge/license-MIT-007EC7.svg?style=flat-square)
-![Current Version](https://img.shields.io/badge/version-1.0.8-green.svg)
+![Current Version](https://img.shields.io/badge/version-1.1.8-green.svg)
 
 [Mailjet][mailjet] API Client.
 
@@ -20,11 +20,17 @@ Check out all the resources and all the PHP code examples on the official docume
 
 ## Installation
 
-Clone or Download this repository. It already contains all the dependencies and the `vendor/autoload.php` file.
+``` bash
+composer require mailjet/mailjet-apiv3-php
+```
+Without composer:
+
+Clone or Download [this repository](https://github.com/mailjet/mailjet-apiv3-php-no-composer) that already contains all the dependencies and the `vendor/autoload.php` file. If you encounter any issue, please post it here and not on the mirror repository.
 
 ## Getting Started !
 
-[grab][api_credential] and save your Mailjet API credentials:
+[grab][api_credential] and save your Mailjet API credentials.
+It will create some variables available in your code, via the `getenv` function:
 
 ``` bash
 
@@ -40,8 +46,14 @@ Initialize your [Mailjet][mailjet] Client:
 
 use \Mailjet\Resources;
 
+// getenv will allow us to get the MJ_APIKEY_PUBLIC/PRIVATE variables we created before
 $apikey = getenv('MJ_APIKEY_PUBLIC');
 $apisecret = getenv('MJ_APIKEY_PRIVATE');
+
+// or
+
+$apikey = 'my api key';
+$apisecret = 'my api secrret';
 
 $mj = new \Mailjet\Client($apikey, $apisecret);
 ?>
@@ -166,6 +178,39 @@ $body = [
 $response = $mj->post(Resources::$Parseroute, ['body' => $body]);
 
 ```
+
+## New !! Version 1.2.0 of the PHP wrapper !
+
+This version modifies the way to construct the Client or the calls. We add the possibility to add an array with parameters on both Client creation and API call (please, note that each of these parameters are preset and are not mandatory in the creation or the call) :
+
+Properties of the $settings (Client constructor) and $options (API call function)
+
+ - url (Default: api.mailjet.com) : domain name of the API 
+ - version (Default: v3) : API version (only working for Mailjet API V3 +)
+ - call (Default: true) : turns on(true) / off the call to the API
+ - secured (Default: true) : turns on(true) / off the use of 'https'
+
+### A basic example : 
+
+``` php 
+<?php 
+...
+
+// Client constructors with specific settings : 
+$mj = new \Mailjet\Client(getenv('MJ_APIKEY_PUBLIC'),
+                          getenv('MJ_APIKEY_PRIVATE'), true, 
+                          ['url' => "www.mailjet.com", 'version' => 'v3', 'call' => false]
+                        );
+
+// API call with specific options. The options passed in the call will only be used for this call.
+$response = $mj->get(Resources::$Contact, [], ['version' => 'v3']);
+
+```
+
+Priority list of options, settings, and default configurations in order of precedence:  
+
+API call > Client constructor > Resource (only with version, available in the Resources Class - Ressources.php) > Wrapper configuration (Config.php) 
+
 
 ## Send a pull request
 
