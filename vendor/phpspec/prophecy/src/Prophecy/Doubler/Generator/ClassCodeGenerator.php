@@ -11,6 +11,9 @@
 
 namespace Prophecy\Doubler\Generator;
 
+use Prophecy\Doubler\Generator\Node\ReturnTypeNode;
+use Prophecy\Doubler\Generator\Node\TypeNodeAbstract;
+
 /**
  * Class code creator.
  * Generates PHP code for specific class node tree.
@@ -19,6 +22,10 @@ namespace Prophecy\Doubler\Generator;
  */
 class ClassCodeGenerator
 {
+    public function __construct(TypeHintReference $typeHintReference = null)
+    {
+    }
+
     /**
      * Generates PHP code for class node.
      *
@@ -60,74 +67,32 @@ class ClassCodeGenerator
             $method->returnsReference() ? '&':'',
             $method->getName(),
             implode(', ', $this->generateArguments($method->getArguments())),
-            $this->getReturnType($method)
+            ($ret = $this->generateTypes($method->getReturnTypeNode())) ? ': '.$ret : ''
         );
         $php .= $method->getCode()."\n";
 
         return $php.'}';
     }
 
-    /**
-     * @return string
-     */
-    private function getReturnType(Node\MethodNode $method)
+    private function generateTypes(TypeNodeAbstract $typeNode): string
     {
-        if (version_compare(PHP_VERSION, '7.1', '>=')) {
-            if ($method->hasReturnType()) {
-                return $method->hasNullableReturnType()
-                    ? sprintf(': ?%s', $method->getReturnType())
-                    : sprintf(': %s', $method->getReturnType());
-            }
+        if (!$typeNode->getTypes()) {
+            return '';
         }
 
-        if (version_compare(PHP_VERSION, '7.0', '>=')) {
-            return $method->hasReturnType() && $method->getReturnType() !== 'void'
-                ? sprintf(': %s', $method->getReturnType())
-                : '';
+        // When we require PHP 8 we can stop generating ?foo nullables and remove this first block
+        if ($typeNode->canUseNullShorthand()) {
+            return sprintf( '?%s', $typeNode->getNonNullTypes()[0]);
+        } else {
+            return join('|', $typeNode->getTypes());
         }
-
-        return '';
     }
 
     private function generateArguments(array $arguments)
     {
-        return array_map(function (Node\ArgumentNode $argument) {
-            $php = '';
+        return array_map(function (Node\ArgumentNode $argument){
 
-            if (version_compare(PHP_VERSION, '7.1', '>=')) {
-                $php .= $argument->isNullable() ? '?' : '';
-            }
-
-            if ($hint = $argument->getTypeHint()) {
-                switch ($hint) {
-                    case 'array':
-                    case 'callable':
-                        $php .= $hint;
-                        break;
-
-                    case 'iterable':
-                        if (version_compare(PHP_VERSION, '7.1', '>=')) {
-                            $php .= $hint;
-                            break;
-                        }
-
-                        $php .= '\\'.$hint;
-                        break;
-
-                    case 'string':
-                    case 'int':
-                    case 'float':
-                    case 'bool':
-                        if (version_compare(PHP_VERSION, '7.0', '>=')) {
-                            $php .= $hint;
-                            break;
-                        }
-                        // Fall-through to default case for PHP 5.x
-
-                    default:
-                        $php .= '\\'.$hint;
-                }
-            }
+            $php = $this->generateTypes($argument->getTypeNode());
 
             $php .= ' '.($argument->isPassedByReference() ? '&' : '');
 
