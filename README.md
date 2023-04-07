@@ -16,7 +16,7 @@ Check out all the resources and all the PHP code examples on the official docume
 
 ## Requirements
 
-`PHP >= 5.4`
+`PHP >= 7.2`
 
 ## Installation
 
